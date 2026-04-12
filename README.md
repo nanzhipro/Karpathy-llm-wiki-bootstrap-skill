@@ -4,6 +4,8 @@
 
 An installable skill and a working reference implementation for building persistent, LLM-maintained Markdown wikis.
 
+![Cover image for Karpathy LLM Wiki Bootstrap](./cover-image/llm-wiki/cover.png)
+
 ## What This Repo Contains
 
 This repository has two closely related parts:

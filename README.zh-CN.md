@@ -4,6 +4,8 @@
 
 一个可安装的 Skill，加上一个真实运行中的参考实现，用来构建由 LLM 持续维护的 Markdown Wiki。
 
+![Karpathy LLM Wiki Bootstrap 封面图](./cover-image/llm-wiki/cover.png)
+
 ## 仓库包含什么
 
 这个仓库由两部分组成，而且两者是配套设计的：
