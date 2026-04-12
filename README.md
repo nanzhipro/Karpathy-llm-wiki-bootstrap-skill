@@ -27,6 +27,49 @@ Non-interactive user-level install:
 npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g -y
 ```
 
+## First Run Example
+
+Here is the simplest first-time workflow, using [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) as the seed source.
+
+This example assumes you are using OpenAI Codex, so the generated schema file will be `AGENTS.md`. If you choose Claude Code instead, use `CLAUDE.md` in the same step.
+
+1. In your agent, trigger the skill:
+
+   > `bootstrap a wiki`
+
+2. When the skill asks its setup questions, choose values like these:
+
+   - Domain: `Research topic`
+   - Wiki name: `llm-wiki-demo`
+   - Agent: `OpenAI Codex`
+   - Editor: `Obsidian`
+   - Source types: `Web articles`
+   - Output location: `Current directory`
+
+3. After the wiki scaffold is created, copy the seed source into the new raw folder:
+
+```bash
+cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
+```
+
+4. Then tell the agent:
+
+   > `Read llm-wiki-demo/AGENTS.md, then ingest llm-wiki-demo/raw/karpathy-llm-wiki-original.md`
+
+5. After the first ingest, inspect these files:
+
+   - `llm-wiki-demo/wiki/index.md`
+   - `llm-wiki-demo/wiki/log.md`
+   - `llm-wiki-demo/wiki/overview.md`
+
+What you should expect after that first run:
+
+- a source summary page under `wiki/sources/`
+- new concept or entity pages if the agent identifies them
+- an updated index, log, and overview
+
+If you want to see what a completed run looks like before trying it yourself, open [llm-wiki/](./llm-wiki).
+
 ## Why This Pattern Exists
 
 Most LLM document workflows stop at RAG: upload files, retrieve a few chunks at question time, and synthesize an answer from scratch. That works, but it does not build lasting structure.

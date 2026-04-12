@@ -27,6 +27,49 @@ npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap
 npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g -y
 ```
 
+## 第一次运行示例
+
+下面是一条最小可跑通的首次使用路径，起点就是 [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)。
+
+这个示例默认你使用的是 OpenAI Codex，所以生成的 schema 文件会是 `AGENTS.md`。如果你选择的是 Claude Code，把同一步里的 `AGENTS.md` 换成 `CLAUDE.md` 即可。
+
+1. 在你的 agent 里触发这个 Skill：
+
+   > `bootstrap a wiki`
+
+2. 当 Skill 询问初始化问题时，可以这样选择：
+
+   - Domain：`Research topic`
+   - Wiki name：`llm-wiki-demo`
+   - Agent：`OpenAI Codex`
+   - Editor：`Obsidian`
+   - Source types：`Web articles`
+   - Output location：`Current directory`
+
+3. 等 Wiki 脚手架生成后，把这份原始理念文档复制到新 Wiki 的 `raw/` 目录：
+
+```bash
+cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
+```
+
+4. 然后对 agent 说：
+
+   > `Read llm-wiki-demo/AGENTS.md, then ingest llm-wiki-demo/raw/karpathy-llm-wiki-original.md`
+
+5. 第一次 ingest 完成后，重点查看这几个文件：
+
+   - `llm-wiki-demo/wiki/index.md`
+   - `llm-wiki-demo/wiki/log.md`
+   - `llm-wiki-demo/wiki/overview.md`
+
+跑完第一轮之后，你通常会看到：
+
+- `wiki/sources/` 下生成了一页 source summary
+- 如果 agent 识别出了关键概念或实体，还会创建新的概念页或实体页
+- `index`、`log` 和 `overview` 都会被同步更新
+
+如果你想先看一份已经跑完的结果，再决定自己动手，可以直接打开 [llm-wiki/](./llm-wiki)。
+
 ## 为什么要用这种模式
 
 现在大多数 LLM 文档工作流，本质上还是 RAG：上传文件、提问时临时检索若干片段、再从头拼出答案。它能解决问题，但不会沉淀结构。
