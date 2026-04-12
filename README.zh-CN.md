@@ -45,18 +45,41 @@ npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g
 
 这个示例默认你使用的是 OpenAI Codex，所以生成的 schema 文件会是 `AGENTS.md`。如果你选择的是 Claude Code，把同一步里的 `AGENTS.md` 换成 `CLAUDE.md` 即可。
 
+在当前的 Codex 宿主环境里，初始化流程是 **Codex-first** 的：
+
+- 如果宿主提供结构化选择 UI，你会看到 **两轮简短选择**，然后再补一个很短的文本输入
+- 如果宿主不提供结构化 UI，agent 会在普通对话里按同样顺序把这些问题问完
+
+也就是说，这个 Skill 不再假设所有运行时都会出现“一个一次性弹完的总弹框”。
+
 1. 在你的 agent 里触发这个 Skill：
 
    > `bootstrap a wiki`
 
-2. 当 Skill 询问初始化问题时，可以这样选择：
+2. 当 Skill 开始走初始化流程时，可以这样选择：
+
+   第 1 轮：
 
    - Domain：`Research topic`
-   - Wiki name：`llm-wiki-demo`
    - Agent：`OpenAI Codex`
    - Editor：`Obsidian`
-   - Source types：`Web articles`
+
+   第 2 轮：
+
+   - Source profile：`Text-first`
    - Output location：`Current directory`
+
+   文本补充：
+
+   - Wiki name：`llm-wiki-demo`
+
+   在这个示例里，`Text-first` 会被规范化为：
+
+   - `Web articles`
+   - `PDFs / papers`
+   - `Books (chapter by chapter)`
+   - `Meeting notes / transcripts`
+   - `Personal notes / journals`
 
 3. 等 Wiki 脚手架生成后，把这份原始理念文档复制到新 Wiki 的 `raw/` 目录：
 
