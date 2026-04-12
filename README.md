@@ -1,128 +1,197 @@
+<p align="right">
+  <a href="./README.zh-CN.md">简体中文</a>
+</p>
+
 # LLM Wiki Bootstrap
 
-Turn any topic into a structured, LLM-maintained markdown wiki — the "Karpathy pattern" of compounding knowledge through human curation + AI maintenance.
+An installable skill plus a working reference implementation for building persistent, LLM-maintained Markdown wikis.
 
-## How It Works
+This repository is meant to be explained publicly in two layers:
 
-```
-You (human)                          LLM Agent
-───────────                          ─────────
-Drop sources into raw/       ──►     Reads source
-Ask "ingest raw/foo.md"      ──►     Extracts entities, concepts, claims
-                                     Creates/updates wiki pages
-                                     Updates index + log
-Ask questions                ──►     Reads index → relevant pages → answers
-Say "lint"                   ──►     Checks consistency, flags issues
+- `skill/` is the distributable package you install and use to generate your own wiki
+- `llm-wiki/` is a real example wiki created from this skill and then maintained through the ingest/query/lint loop
+
+## Quick Install (Recommended)
+
+```bash
+npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap
 ```
 
-The wiki has three layers:
+For a non-interactive user-level install:
 
-| Layer | Location | Owner | Mutable? |
-|-------|----------|-------|----------|
-| Sources | `raw/` | Human | Read-only (immutable after adding) |
-| Wiki pages | `wiki/` | LLM | Yes — created, updated, deleted by agent |
-| Schema | AI instruction file (root) | Human + Skill | Rarely changed after bootstrap |
+```bash
+npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g -y
+```
 
-The **schema file** is the key artifact. It tells the LLM agent exactly how to structure pages, handle ingestion, answer queries, and audit the wiki. The skill generates it automatically based on your domain and toolchain choices.
+## What This Repository Ships
 
-## Quick Start
+### 1. The Installable Skill
 
-1. **Trigger the skill** — tell your LLM agent:
-   > "bootstrap a wiki" / "create wiki" / "new wiki" / "llm wiki"
+The skill lives in [skill](./skill) and is the only source of truth for distribution.
 
-2. **Answer 6 questions** — domain, name, agent type, editor, source types, output location
+It scaffolds a new wiki by generating:
 
-3. **Open the generated directory** in your editor. You'll see:
-   ```
-   {wiki-name}/
-   ├── raw/                 # Drop source files here
-   ├── wiki/
-   │   ├── index.md         # Content catalog (LLM reads this first)
-   │   ├── log.md           # Chronological operation log
-   │   └── overview.md      # High-level synthesis
-   ├── {schema-file}        # AI instruction file
-   └── .gitignore
-   ```
+- a raw source layer
+- a maintained `wiki/` layer
+- a schema file such as `AGENTS.md`, `CLAUDE.md`, or `SCHEMA.md`
+- the operating conventions for ingest, query, and lint
 
-4. **Add your first source** to `raw/` and tell the agent:
-   > "read {schema-file}, then ingest raw/{filename}"
+### 2. The Reference Implementation
 
-5. **Repeat**. Each source compounds the wiki.
+[llm-wiki](./llm-wiki) is not a placeholder. It is a working example produced from this skill and then actually run as a living wiki.
 
-## Three Core Operations
+That means it shows the full pattern in compiled form:
 
-| Operation | Trigger | What Happens |
-|-----------|---------|-------------|
-| **Ingest** | "ingest raw/{file}" | Source → summary + entities + concepts + index update + log entry |
-| **Query** | Ask any domain question | Agent reads index → relevant pages → synthesized answer with citations |
-| **Lint** | "lint" / "health check" | Detects contradictions, orphan pages, missing links, stale claims |
+- raw source files in [llm-wiki/raw](./llm-wiki/raw)
+- an agent contract in [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md)
+- maintained wiki pages in [llm-wiki/wiki](./llm-wiki/wiki)
 
-Detailed protocols for each operation are embedded in the generated schema file. The agent follows them automatically.
+For external readers, the clean framing is:
+
+- install `skill/` if you want to create your own wiki
+- inspect `llm-wiki/` if you want to see what the system looks like after it has been bootstrapped and used for real
+
+## Why This Pattern Exists
+
+Most document workflows with LLMs look like RAG: upload files, retrieve chunks at question time, and synthesize an answer from scratch each time. That works, but it does not accumulate structure.
+
+This skill packages a different model:
+
+- raw sources remain immutable
+- the agent incrementally compiles knowledge into a wiki
+- the wiki becomes a persistent artifact that gets richer over time
+- useful answers can be filed back into the wiki instead of disappearing into chat history
+
+## System Model
+
+There are really four layers when you present this repository end to end:
+
+| Layer | Location | Role |
+| --- | --- | --- |
+| Skill package | `skill/` | Reusable bootstrap logic and templates |
+| Raw sources | `raw/` | Immutable evidence layer |
+| Schema | `AGENTS.md` / `CLAUDE.md` / `SCHEMA.md` | Agent operating contract |
+| Wiki pages | `wiki/` | Maintained knowledge layer |
+
+The skill package creates the bottom three layers inside a user wiki. The reference implementation in `llm-wiki/` shows the result after that process has already happened.
+
+## Reference Example: `llm-wiki/`
+
+The example wiki currently includes:
+
+```text
+llm-wiki/
+├── AGENTS.md
+├── raw/
+│   ├── Karpathy x.md
+│   └── llm-wiki-pattern.md
+└── wiki/
+    ├── index.md
+    ├── log.md
+    ├── overview.md
+    ├── concepts/
+    ├── entities/
+    ├── comparisons/
+    ├── sources/
+    └── synthesis/
+```
+
+Useful entry points:
+
+- [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) shows the generated operating contract
+- [llm-wiki/wiki/index.md](./llm-wiki/wiki/index.md) shows the catalog the agent navigates through
+- [llm-wiki/wiki/log.md](./llm-wiki/wiki/log.md) shows the chronological operation history
+- [llm-wiki/wiki/overview.md](./llm-wiki/wiki/overview.md) shows the current top-level synthesis
+
+The canonical idea note behind this example lives at the repository root in [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md).
+
+## Source Grounding And Origin
+
+The reference wiki is grounded in Karpathy's original llm-wiki idea. The canonical source text for that idea is [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) at the repository root.
+
+In other words, the example is not just a random demo corpus. It is a reference implementation whose raw layer is organized from that original concept and then extended with additional sources so readers can see how the skill turns an idea into a maintained knowledge base.
+
+In the current example corpus, the raw layer includes:
+
+- [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md), the canonical original idea note
+- [llm-wiki/raw/llm-wiki-pattern.md](./llm-wiki/raw/llm-wiki-pattern.md), the example-local raw source derived from that original pattern
+- [llm-wiki/raw/Karpathy x.md](./llm-wiki/raw/Karpathy%20x.md), which shows how new sources get ingested into the same evolving wiki
+
+For public release, the right explanation is:
+
+- the skill encodes the method
+- the example wiki demonstrates the method in use
+- the raw corpus begins from [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) and then expands with additional sources
+
+## Recommended Deployment Layout
+
+Use `.agent/skills/` as the canonical install location for the skill itself. If Claude, Codex, or another runtime expects a separate discovery directory, point that runtime back to the same installed copy with a symbolic link instead of duplicating files.
+
+```text
+.agent/
+└── skills/
+    └── llm-wiki-bootstrap/
+        ├── SKILL.md
+        └── references/
+```
+
+Example symlinks:
+
+```bash
+ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.claude/skills/llm-wiki-bootstrap
+ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.codex/skills/llm-wiki-bootstrap
+```
+
+The important principle is to keep one real installed copy and link every runtime back to it.
+
+## What The Skill Generates
+
+When someone installs the skill and creates a new wiki, the generated structure looks like this:
+
+```text
+{wiki-name}/
+├── raw/
+├── wiki/
+│   ├── index.md
+│   ├── log.md
+│   └── overview.md
+├── {schema-file}
+└── .gitignore
+```
+
+## Core Operations
+
+| Operation | Trigger | Result |
+| --- | --- | --- |
+| Ingest | `"ingest raw/{file}"` | Converts a source into summaries, entities, concepts, links, index updates, and a log entry |
+| Query | Ask a domain question | Reads the index, opens relevant pages, and answers with citations |
+| Lint | `"lint"` / `"health check"` | Audits contradictions, stale claims, orphan pages, and missing links |
 
 ## Schema File Variants
 
-The skill picks the right filename based on your LLM agent:
+| Agent | Schema File |
+| --- | --- |
+| Claude Code | `CLAUDE.md` |
+| OpenAI Codex | `AGENTS.md` |
+| Copilot (VS Code) | `.github/copilot-instructions.md` |
+| Other / generic | `SCHEMA.md` |
 
-| Agent | Schema File | Why |
-|-------|------------|-----|
-| Claude Code | `CLAUDE.md` | Claude's project-level instruction convention |
-| OpenAI Codex | `AGENTS.md` | Codex's agent instruction convention |
-| Copilot (VS Code) | `.github/copilot-instructions.md` | Copilot's custom instruction path |
-| Other / generic | `SCHEMA.md` | Universal fallback |
+The operating model stays the same. Only the filename changes to match the agent's conventions.
 
-All variants contain the same content — only the filename differs.
+## Repository Layout
 
-## Domain Customization
+| Path | Purpose |
+| --- | --- |
+| [skill/SKILL.md](./skill/SKILL.md) | Installable skill definition |
+| [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) | Canonical original idea note behind the example corpus |
+| [skill/references/templates](./skill/references/templates) | Templates used during bootstrap |
+| [skill/references/workflows](./skill/references/workflows) | Detailed ingest, query, and lint workflow references |
+| [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) | Generated agent instructions for the example wiki |
+| [llm-wiki/raw](./llm-wiki/raw) | Example source corpus |
+| [llm-wiki/wiki](./llm-wiki/wiki) | Example compiled wiki output |
 
-The skill adds domain-specific page types based on your choice:
+## Public Positioning
 
-| Domain | Extra Page Types |
-|--------|-----------------|
-| Research | Paper summary, Claim, Method, Dataset |
-| Book / Media | Character, Timeline, Plot thread, Theme, Location |
-| Personal | Journal entry, Goal, Habit tracker, Lesson |
-| Business / Team | Decision log, Meeting summary, Project, Stakeholder |
+If you are describing this project externally, the clean one-line summary is:
 
-These supplement the universal types (Source summary, Entity, Concept, Comparison, Synthesis, Overview) that every wiki gets.
-
-## Important Notes
-
-### The Human's Job
-- **Curate sources** — the LLM only knows what you feed it. Quality in → quality out.
-- **Direct analysis** — ask questions, request comparisons, point out gaps.
-- **Review takeaways** — during ingest, the agent presents key claims for your confirmation before filing.
-
-### The LLM's Job
-- **Maintain all wiki pages** — create, update, cross-link, flag contradictions.
-- **Never modify `raw/`** — sources are immutable records.
-- **Keep index and log current** — every operation is logged and cataloged.
-
-### Things to Know
-- **Contradictions are features, not bugs.** When sources disagree, the agent flags both positions with `⚠️ CONTRADICTION` markers rather than silently picking a winner.
-- **The wiki is regenerable.** If wiki pages get corrupted, delete `wiki/` and re-ingest all sources from `raw/`. The raw layer is the durable truth.
-- **Git works out of the box.** Everything is plain text. Commit early, commit often.
-- **Overview is auto-managed.** After each ingest, the agent reviews `wiki/overview.md` and revises it if the new source changes the big picture.
-- **One concept per page.** If a page tries to cover two distinct ideas, split it. This keeps cross-linking precise.
-
-### Obsidian Users
-If you chose Obsidian as your editor:
-- Set **Attachment folder path** → `raw/assets/` (Settings → Files and links)
-- Install **Dataview** plugin for frontmatter queries (e.g., list all entities from a given source)
-- Use **Graph view** to spot orphan pages and hub nodes
-- The skill does NOT touch `.obsidian/` — your config stays yours
-
-## File Reference
-
-| File | Purpose |
-|------|---------|
-| `SKILL.md` | Agent-executable skill definition (the bootstrap protocol) |
-| `references/templates/schema.md` | Template for the AI instruction file |
-| `references/templates/index.md` | Template for wiki index |
-| `references/templates/log.md` | Template for operation log |
-| `references/templates/overview.md` | Template for overview page |
-| `references/templates/domain-page-types.md` | Domain-specific page type snippets |
-| `references/templates/gitignore.md` | Git ignore template |
-| `references/workflows/ingest.md` | Full ingest protocol with edge cases |
-| `references/workflows/query.md` | Query and answer-filing protocol |
-| `references/workflows/lint.md` | Wiki health-check protocol |
-
+> `LLM Wiki Bootstrap` is an installable skill for creating persistent LLM-maintained Markdown wikis, bundled with a real `llm-wiki/` reference implementation that shows the pattern running on a source corpus grounded in [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md).
