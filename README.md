@@ -6,6 +6,16 @@ An installable skill and a working reference implementation for building persist
 
 ![Cover image for Karpathy LLM Wiki Bootstrap](./cover-image/llm-wiki/cover.png)
 
+The most important thing here is not just the bootstrap skill, but **the worked example**. Starting from [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md), the LLM incrementally compiles source material into [llm-wiki/](./llm-wiki)—growing an [index](./llm-wiki/wiki/index.md), a [log](./llm-wiki/wiki/log.md), concept pages, comparison pages, and synthesis pages. The point is not a one-off summary, but a **maintainable knowledge artifact**.
+
+That same pattern works for articles, papers, research reports, and books:
+
+- keep raw evidence in `raw/`
+- keep evolving understanding in `wiki/`
+- use **ingest**, **query**, and **lint** to keep the structure alive over time
+
+> **Full walkthrough →** [Reading Is Not Enough: How to Compile an Article into an LLM Wiki](./from-article-to-llm-wiki.article.en.md)  ·  [中文版](./from-article-to-llm-wiki.article.zh-CN.md)
+
 ## What This Repo Contains
 
 This repository has two closely related parts:
@@ -50,9 +60,9 @@ This example assumes you are using OpenAI Codex, so the generated schema file wi
 
 3. After the wiki scaffold is created, copy the seed source into the new raw folder:
 
-```bash
-cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
-```
+   ```bash
+   cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
+   ```
 
 4. Then tell the agent:
 
@@ -80,16 +90,16 @@ If you want the wiki to be compiled in Chinese from the start, you can simply te
 
 ## Why This Pattern Exists
 
-Most LLM document workflows stop at RAG: upload files, retrieve a few chunks at question time, and synthesize an answer from scratch. That works, but it does not build lasting structure.
+Most LLM document workflows stop at RAG: upload files, retrieve a few chunks at question time, and synthesize an answer from scratch. That works—but it does not build lasting structure.
 
 This project packages a different model:
 
-- raw sources stay immutable
-- the agent incrementally compiles knowledge into a wiki
-- the wiki becomes a persistent artifact that grows over time
-- useful answers can be filed back into the wiki instead of disappearing into chat history
+- Raw sources stay **immutable**
+- The agent incrementally **compiles** knowledge into a wiki
+- The wiki becomes a **persistent artifact** that grows over time
+- Useful answers get filed back into the wiki instead of disappearing into chat history
 
-The result is a knowledge base that compounds instead of resetting on every query.
+**The result:** a knowledge base that compounds instead of resetting on every query.
 
 ## System Model
 
@@ -102,7 +112,9 @@ The full system has four layers:
 | Schema | `AGENTS.md` / `CLAUDE.md` / `SCHEMA.md` | Operating contract for the agent |
 | Wiki pages | `wiki/` | Maintained knowledge layer |
 
-The skill creates the bottom three layers inside a new wiki. The example in `llm-wiki/` shows what that looks like after the system has already been used.
+The skill creates the bottom three layers inside a new wiki.
+
+The example in `llm-wiki/` shows what that looks like after the system has already been used.
 
 ## The Reference Wiki
 
@@ -140,24 +152,28 @@ If you want to understand the pattern quickly, `llm-wiki/` is the best place to 
 
 The underlying idea comes from Karpathy's original LLM Wiki note:
 
-- original gist: <https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f>
-- repository copy: [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)
+- Original gist: <https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f>
+- Repository copy: [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)
 
-The example wiki is grounded in that note. In this repository, the source lineage looks like this:
+The example wiki is grounded in that note. Source lineage in this repo:
 
-- [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) is the reference copy of the original idea
-- [llm-wiki/raw/llm-wiki-pattern.md](./llm-wiki/raw/llm-wiki-pattern.md) is the example-local raw source derived from that idea
-- [llm-wiki/raw/Karpathy x.md](./llm-wiki/raw/Karpathy%20x.md) shows how additional sources get absorbed into the same evolving wiki
+| Source | Role |
+| --- | --- |
+| [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) | Reference copy of the original idea |
+| [llm-wiki/raw/llm-wiki-pattern.md](./llm-wiki/raw/llm-wiki-pattern.md) | Example-local raw source derived from it |
+| [llm-wiki/raw/Karpathy x.md](./llm-wiki/raw/Karpathy%20x.md) | Shows how additional sources get absorbed |
 
-For public-facing explanation, the clean framing is:
+Clean framing for public-facing explanation:
 
-- the skill packages the method
-- the example wiki demonstrates the method in use
-- the example corpus starts from Karpathy's original idea and then grows through new sources
+1. The **skill** packages the method
+2. The **example wiki** demonstrates the method in use
+3. The **corpus** starts from Karpathy's idea, then grows through new sources
 
 ## Recommended Installation Layout
 
-Use `.agent/skills/` as the canonical installation location. If Claude, Codex, or another runtime expects a separate discovery directory, link that runtime back to the same installed copy instead of duplicating files.
+Use `.agent/skills/` as the canonical installation location.
+
+If Claude, Codex, or another runtime expects a separate discovery directory, link that runtime back to the same installed copy instead of duplicating files.
 
 ```text
 .agent/
@@ -174,7 +190,9 @@ ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.claude/skills/llm-wi
 ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.codex/skills/llm-wiki-bootstrap
 ```
 
-The principle is simple: keep one real installed copy and point every runtime back to it.
+> **Principle:** keep one real installed copy and point every runtime back to it.
+
+---
 
 ## What The Skill Generates
 
@@ -201,6 +219,8 @@ Schema filename by runtime:
 | Other / generic | `SCHEMA.md` |
 
 Only the filename changes. The operating model stays the same.
+
+---
 
 ## Core Operations
 

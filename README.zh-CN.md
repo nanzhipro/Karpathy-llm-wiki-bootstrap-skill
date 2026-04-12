@@ -6,6 +6,16 @@
 
 ![Karpathy LLM Wiki Bootstrap 封面图](./cover-image/llm-wiki/cover.png)
 
+这个仓库最值得看的，不只是一个可以初始化 Wiki 的 Skill，而是**一个已经跑起来的样本**。从 [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) 出发，LLM 把原始材料逐步编译进 [llm-wiki/](./llm-wiki)，长出 [index](./llm-wiki/wiki/index.md)、[log](./llm-wiki/wiki/log.md)、概念页、对比页和综合页。它展示的不是“如何做一次总结”，而是“如何把一篇材料变成一个**可维护的知识工件**”。
+
+如果你在学习一篇文章、论文、调研报告或一本书，这套模式的关键是把维护劳动交给 LLM：
+
+- 原始资料保留在 `raw/`
+- 结构化理解沉淀在 `wiki/`
+- 后续通过 **ingest**、**query**、**lint** 持续扩展和校正
+
+> **完整展开版 →** [不是读完就算：如何把一篇文章编译成一个能长期记住它的 LLM Wiki](./from-article-to-llm-wiki.article.zh-CN.md)  ·  [English](./from-article-to-llm-wiki.article.en.md)
+
 ## 仓库包含什么
 
 这个仓库由两部分组成，而且两者是配套设计的：
@@ -50,9 +60,9 @@ npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g
 
 3. 等 Wiki 脚手架生成后，把这份原始理念文档复制到新 Wiki 的 `raw/` 目录：
 
-```bash
-cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
-```
+   ```bash
+   cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
+   ```
 
 4. 然后对 agent 说：
 
@@ -84,12 +94,12 @@ cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
 
 这个项目封装的是另一种做法：
 
-- 原始资料始终保持不可变
-- Agent 持续把知识“编译”进 Wiki
-- Wiki 会成为一个不断增长的长期知识制品
+- 原始资料始终保持**不可变**
+- Agent 持续把知识“**编译**”进 Wiki
+- Wiki 会成为一个**不断增长的长期知识制品**
 - 有价值的回答可以继续归档回 Wiki，而不是消失在聊天记录里
 
-结果就是：知识会持续累积，而不是每次提问都从零开始。
+**结果就是：**知识会持续累积，而不是每次提问都从零开始。
 
 ## 系统模型
 
@@ -102,7 +112,9 @@ cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
 | Schema 层 | `AGENTS.md` / `CLAUDE.md` / `SCHEMA.md` | Agent 的操作契约 |
 | Wiki 页面层 | `wiki/` | 持续维护的知识层 |
 
-Skill 负责在一个新 Wiki 里生成后三层。`llm-wiki/` 则展示了这套机制已经实际运行过之后的结果。
+Skill 负责在一个新 Wiki 里生成后三层。
+
+`llm-wiki/` 则展示了这套机制已经实际运行过之后的结果。
 
 ## 参考 Wiki
 
@@ -143,21 +155,25 @@ llm-wiki/
 - 原始 gist：<https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f>
 - 仓库内副本：[karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)
 
-当前示例 Wiki 就是建立在这份原始想法之上的。在这个仓库里，它的语料脉络是：
+当前示例 Wiki 就是建立在这份原始想法之上的。语料脉络如下：
 
-- [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) 是原始理念的仓库内参考副本
-- [llm-wiki/raw/llm-wiki-pattern.md](./llm-wiki/raw/llm-wiki-pattern.md) 是基于这份理念整理出的示例原始语料
-- [llm-wiki/raw/Karpathy x.md](./llm-wiki/raw/Karpathy%20x.md) 展示了新资料如何继续被吸收进同一个演化中的 Wiki
+| 语料 | 角色 |
+| --- | --- |
+| [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) | 原始理念的仓库内参考副本 |
+| [llm-wiki/raw/llm-wiki-pattern.md](./llm-wiki/raw/llm-wiki-pattern.md) | 基于理念整理的示例原始语料 |
+| [llm-wiki/raw/Karpathy x.md](./llm-wiki/raw/Karpathy%20x.md) | 展示新资料如何被吸收进演化中的 Wiki |
 
 对外介绍时，最清晰的说法是：
 
-- Skill 负责把方法封装成可安装的能力
-- 示例 Wiki 负责展示这套方法已经真实跑起来的效果
-- 示例语料以 Karpathy 的原始想法为起点，再继续向外扩展
+1. **Skill** 负责把方法封装成可安装的能力
+2. **示例 Wiki** 负责展示这套方法已经真实跑起来的效果
+3. **语料** 以 Karpathy 的原始想法为起点，再继续向外扩展
 
 ## 推荐安装布局
 
-建议把 `.agent/skills/` 作为统一安装位置。对于 Claude、Codex 或其他需要单独发现目录的运行时，不要复制多份内容，而是把它们链接回同一份已安装 Skill。
+建议把 `.agent/skills/` 作为统一安装位置。
+
+对于 Claude、Codex 或其他需要单独发现目录的运行时，不要复制多份内容，而是把它们链接回同一份已安装 Skill。
 
 ```text
 .agent/
@@ -174,7 +190,9 @@ ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.claude/skills/llm-wi
 ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.codex/skills/llm-wiki-bootstrap
 ```
 
-原则很简单：只保留一份真实安装副本，其余运行时都回链到它。
+> **原则很简单：**只保留一份真实安装副本，其余运行时都回链到它。
+
+---
 
 ## Skill 会生成什么
 
@@ -201,6 +219,8 @@ ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.codex/skills/llm-wik
 | 其他 / 通用 | `SCHEMA.md` |
 
 只有文件名会变，运行模型本身是一致的。
+
+---
 
 ## 三类核心操作
 
