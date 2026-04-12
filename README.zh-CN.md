@@ -70,6 +70,12 @@ cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
 
 如果你想先看一份已经跑完的结果，再决定自己动手，可以直接打开 [llm-wiki/](./llm-wiki)。
 
+一个很实用的小 tips：
+
+如果你想从一开始就构建中文 Wiki，在调用时直接对 agent 说：
+
+> `使用中文编译 karpathy-llm-wiki-original.md`
+
 ## 为什么要用这种模式
 
 现在大多数 LLM 文档工作流，本质上还是 RAG：上传文件、提问时临时检索若干片段、再从头拼出答案。它能解决问题，但不会沉淀结构。

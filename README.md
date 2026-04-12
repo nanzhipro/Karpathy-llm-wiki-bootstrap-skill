@@ -70,6 +70,12 @@ What you should expect after that first run:
 
 If you want to see what a completed run looks like before trying it yourself, open [llm-wiki/](./llm-wiki).
 
+Tip for a Chinese-language wiki:
+
+If you want the wiki to be compiled in Chinese from the start, you can simply tell the agent:
+
+> `使用中文编译 karpathy-llm-wiki-original.md`
+
 ## Why This Pattern Exists
 
 Most LLM document workflows stop at RAG: upload files, retrieve a few chunks at question time, and synthesize an answer from scratch. That works, but it does not build lasting structure.
