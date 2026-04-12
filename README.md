@@ -45,41 +45,18 @@ Here is the simplest first-time workflow, using [karpathy-llm-wiki-original.md](
 
 This example assumes you are using OpenAI Codex, so the generated schema file will be `AGENTS.md`. If you choose Claude Code instead, use `CLAUDE.md` in the same step.
 
-On current Codex hosts, the setup flow is **Codex-first**:
-
-- if the host exposes structured selection UI, you will see **two short selection rounds** followed by a brief text follow-up
-- if the host does not expose structured UI, the agent will ask the same setup questions in plain chat
-
-The skill no longer assumes one all-in-one setup popup in every runtime.
-
 1. In your agent, trigger the skill:
 
    > `bootstrap a wiki`
 
-2. When the skill runs its setup flow, choose values like these:
-
-   Round 1:
+2. When the skill asks its setup questions, choose values like these:
 
    - Domain: `Research topic`
+   - Wiki name: `llm-wiki-demo`
    - Agent: `OpenAI Codex`
    - Editor: `Obsidian`
-
-   Round 2:
-
-   - Source profile: `Text-first`
+   - Source types: `Web articles`
    - Output location: `Current directory`
-
-   Plain-text follow-up:
-
-   - Wiki name: `llm-wiki-demo`
-
-   In this example, `Text-first` normalizes to:
-
-   - `Web articles`
-   - `PDFs / papers`
-   - `Books (chapter by chapter)`
-   - `Meeting notes / transcripts`
-   - `Personal notes / journals`
 
 3. After the wiki scaffold is created, copy the seed source into the new raw folder:
 

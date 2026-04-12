@@ -24,77 +24,43 @@ Six sequential phases. Each phase completes before the next begins.
 
 **BLOCKING** — must complete before any file creation.
 
-Use a **Codex-first intake**. When the host exposes structured input UI, use it. Otherwise, ask the same questions as concise plain-text follow-ups. Do NOT promise an interactive selection UI in every runtime.
+Use `AskUserQuestion` with ALL questions in ONE call:
 
-**Round 1 — structured UI**
+**Q1** — header: "Domain", question: "What is this wiki about?"
 
-Ask exactly 3 single-choice questions:
+- Options: "Research topic", "Book / media", "Personal (goals, health, learning)", "Business / team", "Other (describe below)"
 
-**Domain** — "What kind of wiki are we bootstrapping?"
+**Q2** — header: "Wiki name", question: "Short name for the wiki root directory?"
 
-- "Research topic (Recommended)" — academic, technical, or investigation-heavy subjects
-- "Book / media" — novels, films, shows, biographies, or narrative corpora
-- "Personal or team" — personal systems, learning, health, goals, projects, or business/team knowledge
+- Free text. Suggest: `{domain}-wiki` (e.g. `ml-wiki`, `lotr-wiki`, `health-wiki`)
 
-**Agent** — "Which LLM agent will maintain this wiki?"
+**Q3** — header: "Agent", question: "Which LLM agent will maintain this wiki?"
 
-- "OpenAI Codex (Recommended)" — defaults to `AGENTS.md`
-- "Claude Code" — defaults to `CLAUDE.md`
-- "Copilot / other" — requires a plain-text follow-up in Round 3 to choose between `.github/copilot-instructions.md` and `SCHEMA.md`
+- Options:
+  - "Claude Code" — generates `CLAUDE.md`
+  - "OpenAI Codex" — generates `AGENTS.md`
+  - "Copilot (VS Code)" — generates `.github/copilot-instructions.md`
+  - "Other / generic" — generates `SCHEMA.md`
 
-**Editor** — "Primary editor for browsing the wiki?"
+**Q4** — header: "Editor", question: "Primary editor for browsing the wiki?"
 
-- "Obsidian (Recommended)"
-- "VS Code"
-- "Other / plain files"
+- Options: "Obsidian (recommended)", "VS Code", "Other / plain files"
 
-**Round 2 — structured UI**
+**Q5** — header: "Source types", question: "What kind of sources will you add?"
 
-Ask exactly 2 single-choice questions:
+- Multi-select. Options: "Web articles", "PDFs / papers", "Books (chapter by chapter)", "Meeting notes / transcripts", "Personal notes / journals", "Images / diagrams", "Data files (CSV, JSON)", "Other"
 
-**Source profile** — "What kind of source mix will this wiki ingest most often?"
+**Q6** — header: "Output location", question: "Where to create the wiki?"
 
-- "Text-first (Recommended)" — web articles, PDFs / papers, books, meeting notes / transcripts, personal notes / journals
-- "Mixed media" — Text-first plus images / diagrams and data files
-- "Custom" — requires a plain-text follow-up in Round 3 with the exact source types
+- Options:
+  - "Current directory" — create `{wiki-name}/` here
+  - "Custom path" — user types absolute path
 
-**Output location** — "Where should the wiki be created?"
-
-- "Current directory (Recommended)" — create `{wiki-name}/` in the current working directory
-- "Custom absolute path" — requires a plain-text follow-up in Round 3 with the absolute parent directory
-
-**Round 3 — plain-text follow-up**
-
-Ask concise plain-text follow-ups:
-
-- Always ask for `Wiki name`. Suggest `{domain}-wiki` (e.g. `ml-wiki`, `lotr-wiki`, `health-wiki`).
-- If `Output location = Custom absolute path`, ask for the **absolute parent directory**. Build the final wiki root as `{custom-parent}/{wiki-name}/`.
-- If `Source profile = Custom`, ask for the exact source types as a comma-separated list.
-- If `Agent = Copilot / other`, ask whether to generate `.github/copilot-instructions.md` or `SCHEMA.md`.
-- If `Domain = Personal or team`, ask whether to normalize the wiki as `Personal` or `Business / team`.
-
-Normalize and store these values for subsequent phases:
-
-| Normalized value | Source |
-| ---------------- | ------ |
-| `domain-type` | Round 1 `Domain`, plus Round 3 clarification for `Personal or team` |
-| `wiki-name` | Round 3 `Wiki name` |
-| `editor` | Round 1 `Editor` |
-| `schema-file` | Round 1 `Agent`, plus Round 3 clarification for `Copilot / other` |
-| `source-types` | `Source profile` mapping below, or the Round 3 custom list |
-| `wiki-root` | `wiki-name` + output mode (`{cwd}/{wiki-name}` or `{custom-parent}/{wiki-name}`) |
-
-Use this explicit `Source profile` mapping:
-
-| Source profile | Normalized `source-types` |
-| -------------- | ------------------------- |
-| `Text-first` | `Web articles`, `PDFs / papers`, `Books (chapter by chapter)`, `Meeting notes / transcripts`, `Personal notes / journals` |
-| `Mixed media` | All `Text-first` sources plus `Images / diagrams`, `Data files (CSV, JSON)` |
-| `Custom` | User-provided exact list from the Round 3 plain-text follow-up |
+Store all answers as session variables for subsequent phases.
 
 ### Phase 2: Create Directory Structure
 
-Based on the normalized Phase 1 values, create the directory tree:
+Based on Phase 1 answers, create the directory tree:
 
 ```
 {wiki-root}/
@@ -104,17 +70,17 @@ Based on the normalized Phase 1 values, create the directory tree:
 │   ├── index.md            # Content catalog
 │   ├── log.md              # Chronological operation log
 │   └── overview.md         # High-level synthesis (starts empty)
-├── {schema-file}           # AI instruction file (name from normalized agent choice)
+├── {schema-file}           # AI instruction file (name from Q3)
 └── .gitignore              # Ignore OS files, keep everything else
 ```
 
 **Conditional directories**:
 
-| Condition | Add |
-| --------- | --- |
-| Normalized `source-types` include `Images / diagrams` | `raw/assets/` |
-| `editor = Obsidian` | `.obsidian/` is NOT created (Obsidian auto-creates it) |
-| Normalized `source-types` are non-empty | `raw/` with a `.gitkeep` |
+| Condition                   | Add                                                    |
+| --------------------------- | ------------------------------------------------------ |
+| Q5 includes images/diagrams | `raw/assets/`                                          |
+| Q4 = Obsidian               | `.obsidian/` is NOT created (Obsidian auto-creates it) |
+| Any source type selected    | `raw/` with a `.gitkeep`                               |
 
 ### Phase 3: Generate Schema File
 
@@ -124,19 +90,19 @@ The schema is the most critical output. It instructs the LLM agent how to operat
 
 | Variable               | Source                                |
 | ---------------------- | ------------------------------------- |
-| `{WIKI_NAME}`          | Normalized `wiki-name`                |
-| `{DOMAIN_DESCRIPTION}` | Normalized `domain-type` (expanded to 1-2 sentences) |
-| `{SOURCE_TYPES}`       | Normalized `source-types`, comma-separated |
-| `{SCHEMA_FILENAME}`    | Normalized `schema-file`              |
-| `{EDITOR}`             | Normalized `editor`                   |
+| `{WIKI_NAME}`          | Q2 answer                             |
+| `{DOMAIN_DESCRIPTION}` | Q1 answer (expanded to 1-2 sentences) |
+| `{SOURCE_TYPES}`       | Q5 answers, comma-separated           |
+| `{SCHEMA_FILENAME}`    | Determined by Q3                      |
+| `{EDITOR}`             | Q4 answer                             |
 | `{DATE}`               | Current date in YYYY-MM-DD            |
 
 After generating, adapt section details:
 
-- If `domain-type = Book / media` → add character, timeline, and plot-thread page types
-- If `domain-type = Research` → add paper-summary and claim-tracking page types
-- If `domain-type = Personal` → add journal-entry and goal-tracking page types
-- If `domain-type = Business / team` → add decision-log and meeting-summary page types
+- If domain is "Book / media" → add character, timeline, and plot-thread page types
+- If domain is "Research" → add paper-summary and claim-tracking page types
+- If domain is "Personal" → add journal-entry and goal-tracking page types
+- If domain is "Business / team" → add decision-log and meeting-summary page types
 
 ### Phase 4: Generate Initial Wiki Files
 
@@ -149,7 +115,7 @@ Create three seed files using templates in `references/templates/`:
   - Research → Papers, Claims, Methods, Datasets
   - Book / media → Characters, Timelines, Themes, Locations
   - Personal → Journal, Goals, Habits, Lessons
-  - Business / team → Decision Logs, Meetings, Projects, Stakeholders
+  - Business → Decision Logs, Meetings, Projects, Stakeholders
 - Leave content sections empty with placeholder comments
 
 **4.2 log.md** — from [references/templates/log.md](references/templates/log.md)
@@ -162,7 +128,7 @@ Create three seed files using templates in `references/templates/`:
 
 ### Phase 5: Editor Configuration
 
-**If `editor = Obsidian`**:
+**If Q4 = Obsidian**:
 
 Do NOT create `.obsidian/` or modify Obsidian settings. Instead, append a `## Obsidian Setup` section to the schema file with recommendations:
 
@@ -171,7 +137,7 @@ Do NOT create `.obsidian/` or modify Obsidian settings. Instead, append a `## Ob
 - Use graph view to inspect wiki structure
 - Bind "Download attachments" hotkey if using Web Clipper
 
-**If `editor = VS Code`**:
+**If Q4 = VS Code**:
 
 Create `.vscode/settings.json` with markdown-friendly defaults:
 
@@ -185,7 +151,7 @@ Create `.vscode/settings.json` with markdown-friendly defaults:
 
 Do NOT append an Obsidian section to the schema file.
 
-**If `editor = Other / plain files`**:
+**If Q4 = Other / plain files**:
 
 Skip editor configuration entirely. Do NOT append any editor-specific section to the schema file. Do NOT create `.vscode/`.
 
