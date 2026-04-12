@@ -1,8 +1,6 @@
-<p align="right">
-  <a href="./README.md">English</a>
-</p>
-
 # LLM Wiki Bootstrap
+
+[English](./README.md)
 
 一个既可安装、又带真实参考实现的 Skill，用来构建由 LLM 持续维护的 Markdown Wiki。
 

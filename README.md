@@ -1,8 +1,6 @@
-<p align="right">
-  <a href="./README.zh-CN.md">简体中文</a>
-</p>
-
 # LLM Wiki Bootstrap
+
+[简体中文](./README.zh-CN.md)
 
 An installable skill plus a working reference implementation for building persistent, LLM-maintained Markdown wikis.
 
