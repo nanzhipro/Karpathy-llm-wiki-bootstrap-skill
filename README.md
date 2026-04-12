@@ -39,6 +39,11 @@ Non-interactive user-level install:
 npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g -y
 ```
 
+Note:
+
+- Use `npx skills ...` (plural), not `npx skill ...`. `skill` is a different CLI and will not handle this repository specifier correctly.
+- If the skill is already installed and you just want the latest version, run `npx skills update` or `npx skills update llm-wiki-bootstrap`.
+
 ## First Run Example
 
 Here is the simplest first-time workflow, using [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) as the seed source.

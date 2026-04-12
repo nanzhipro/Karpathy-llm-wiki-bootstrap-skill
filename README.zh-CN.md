@@ -39,6 +39,11 @@ npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap
 npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g -y
 ```
 
+说明：
+
+- 这里要用 `npx skills ...`（复数），不要用 `npx skill ...`。`skill` 是另一个 CLI，不能按这个仓库的 specifier 正确处理安装。
+- 如果你已经安装过，只是想更新到最新版本，使用 `npx skills update` 或 `npx skills update llm-wiki-bootstrap`。
+
 ## 第一次运行示例
 
 下面是一条最小可跑通的首次使用路径，起点就是 [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)。
