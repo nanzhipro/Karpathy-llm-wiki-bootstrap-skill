@@ -10,7 +10,7 @@ description: >
 version: 0.1.0
 ---
 
-# LLM Wiki Bootstrap
+# Karpathy LLM Wiki Bootstrap
 
 Scaffold a complete LLM Wiki framework from zero: directory structure, schema (the AI instruction file), index, log, and operational workflows. The output is a ready-to-use wiki that the user and their LLM agent can immediately start populating.
 
