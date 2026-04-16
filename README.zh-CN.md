@@ -48,7 +48,7 @@ npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g
 
 下面是一条最小可跑通的首次使用路径，起点就是 [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)。
 
-这个示例默认你使用的是 OpenAI Codex，所以生成的 schema 文件会是 `AGENTS.md`。如果你选择的是 Claude Code，把同一步里的 `AGENTS.md` 换成 `CLAUDE.md` 即可。
+规则的单一真源永远是 `SCHEMA.md`。`AGENTS.md`（Codex）和 `CLAUDE.md`（Claude Code）会被生成为轻量指针，只做一件事：把 agent 指向 `SCHEMA.md`。下面示例默认使用 OpenAI Codex，所以会存在 `AGENTS.md` 指针；如果你选择 Claude Code，会改为生成 `CLAUDE.md` 指针。多个运行时可以共存——所有指针都读取同一份 `SCHEMA.md`。
 
 1. 在你的 agent 里触发这个 Skill：
 
@@ -71,7 +71,9 @@ npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g
 
 4. 然后对 agent 说：
 
-   > `Read llm-wiki-demo/AGENTS.md, then ingest llm-wiki-demo/raw/karpathy-llm-wiki-original.md`
+   > `Read llm-wiki-demo/SCHEMA.md, then ingest llm-wiki-demo/raw/karpathy-llm-wiki-original.md`
+
+   （会自动发现 `AGENTS.md` / `CLAUDE.md` 的运行时也会被指针重定向到 `SCHEMA.md`。）
 
 5. 第一次 ingest 完成后，重点查看这几个文件：
 
@@ -114,7 +116,8 @@ npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g
 | --- | --- | --- |
 | Skill 包 | `skill/` | bootstrap 逻辑、模板和工作流规则 |
 | 原始资料层 | `raw/` | 不可变的证据层 |
-| Schema 层 | `AGENTS.md` / `CLAUDE.md` / `SCHEMA.md` | Agent 的操作契约 |
+| Schema 层 | `SCHEMA.md` | 单一真源——所有 agent 共享的操作契约 |
+| 指针层 | `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md` | 可选的轻量指针，一个运行时一个，统一指向 `SCHEMA.md` |
 | Wiki 页面层 | `wiki/` | 持续维护的知识层 |
 
 Skill 负责在一个新 Wiki 里生成后三层。
@@ -129,7 +132,8 @@ Skill 负责在一个新 Wiki 里生成后三层。
 
 ```text
 llm-wiki/
-├── AGENTS.md
+├── SCHEMA.md            # 单一真源：所有操作规则
+├── AGENTS.md            # 轻量指针：OpenAI Codex → SCHEMA.md
 ├── raw/
 │   ├── Karpathy x.md
 │   └── llm-wiki-pattern.md
@@ -146,7 +150,8 @@ llm-wiki/
 
 建议先看这几个入口：
 
-- [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md)，看生成后的 Agent 指令
+- [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md)，看权威的 agent 操作指令
+- [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md)，看运行时指针文件长什么样
 - [llm-wiki/wiki/index.md](./llm-wiki/wiki/index.md)，看 Agent 如何导航整个知识库
 - [llm-wiki/wiki/log.md](./llm-wiki/wiki/log.md)，看按时间顺序记录的操作历史
 - [llm-wiki/wiki/overview.md](./llm-wiki/wiki/overview.md)，看当前阶段的顶层综合判断
@@ -210,20 +215,21 @@ ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.codex/skills/llm-wik
 │   ├── index.md
 │   ├── log.md
 │   └── overview.md
-├── {schema-file}
+├── SCHEMA.md            # 一定会生成——单一真源
+├── {pointer-files}      # 可选，每个所选运行时一份
 └── .gitignore
 ```
 
-不同运行时对应的 schema 文件名如下：
+`SCHEMA.md` 一定会生成。对于你在初始化时选择的每个运行时，Skill 会额外生成一个轻量指针文件，直接重定向到 `SCHEMA.md`：
 
-| Agent | Schema 文件名 |
-| --- | --- |
-| Claude Code | `CLAUDE.md` |
-| OpenAI Codex | `AGENTS.md` |
-| Copilot (VS Code) | `.github/copilot-instructions.md` |
-| 其他 / 通用 | `SCHEMA.md` |
+| Agent | 指针文件 | 指向 |
+| --- | --- | --- |
+| Claude Code | `CLAUDE.md` | `./SCHEMA.md` |
+| OpenAI Codex | `AGENTS.md` | `./SCHEMA.md` |
+| Copilot (VS Code) | `.github/copilot-instructions.md` | `../SCHEMA.md` |
+| 其他 / 通用 | _（不生成指针）_ | agent 直接读 `SCHEMA.md` |
 
-只有文件名会变，运行模型本身是一致的。
+所有规则都写在 `SCHEMA.md` 里。指针永远不重复规则内容——所以你随时可以新增一个运行时，只要再丢一个指针文件进去即可。
 
 ---
 
@@ -243,7 +249,8 @@ ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.codex/skills/llm-wik
 | [skill/references/templates](./skill/references/templates) | bootstrap 过程中使用的模板 |
 | [skill/references/workflows](./skill/references/workflows) | ingest、query、lint 的详细工作流参考 |
 | [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) | 原始理念笔记的仓库内副本 |
-| [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) | 示例 Wiki 的 Agent 指令文件 |
+| [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md) | 示例 Wiki 的单一真源操作契约 |
+| [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) | 示例 Wiki 的 Codex 轻量指针，重定向到 SCHEMA.md |
 | [llm-wiki/raw](./llm-wiki/raw) | 示例原始资料层 |
 | [llm-wiki/wiki](./llm-wiki/wiki) | 示例编译后的 Wiki 输出层 |
 

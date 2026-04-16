@@ -8,4 +8,5 @@
 - Scaffolded by llm-wiki-bootstrap
 - Domain: {DOMAIN_DESCRIPTION}
 - Source types: {SOURCE_TYPES}
-- Schema: {SCHEMA_FILENAME}
+- Schema: SCHEMA.md (single source of truth)
+- Pointers: {POINTER_FILES}

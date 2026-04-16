@@ -48,7 +48,7 @@ Note:
 
 Here is the simplest first-time workflow, using [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) as the seed source.
 
-This example assumes you are using OpenAI Codex, so the generated schema file will be `AGENTS.md`. If you choose Claude Code instead, use `CLAUDE.md` in the same step.
+The single source of truth is always `SCHEMA.md`. `AGENTS.md` (Codex) and `CLAUDE.md` (Claude Code) are generated as thin pointers that redirect to it. The example below uses OpenAI Codex, so an `AGENTS.md` pointer is present; if you select Claude Code, a `CLAUDE.md` pointer is generated instead. Multiple runtimes can coexist — all pointers read from the same `SCHEMA.md`.
 
 1. In your agent, trigger the skill:
 
@@ -71,7 +71,9 @@ This example assumes you are using OpenAI Codex, so the generated schema file wi
 
 4. Then tell the agent:
 
-   > `Read llm-wiki-demo/AGENTS.md, then ingest llm-wiki-demo/raw/karpathy-llm-wiki-original.md`
+   > `Read llm-wiki-demo/SCHEMA.md, then ingest llm-wiki-demo/raw/karpathy-llm-wiki-original.md`
+
+   (Runtimes that auto-discover `AGENTS.md` / `CLAUDE.md` will be redirected to `SCHEMA.md` automatically.)
 
 5. After the first ingest, inspect these files:
 
@@ -114,7 +116,8 @@ The full system has four layers:
 | --- | --- | --- |
 | Skill package | `skill/` | Bootstrap logic, templates, and workflow rules |
 | Raw sources | `raw/` | Immutable evidence layer |
-| Schema | `AGENTS.md` / `CLAUDE.md` / `SCHEMA.md` | Operating contract for the agent |
+| Schema | `SCHEMA.md` | Single source of truth — the operating contract for every agent |
+| Pointers | `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md` | Optional thin redirects to `SCHEMA.md`, one per runtime you want to support |
 | Wiki pages | `wiki/` | Maintained knowledge layer |
 
 The skill creates the bottom three layers inside a new wiki.
@@ -129,7 +132,8 @@ Current structure:
 
 ```text
 llm-wiki/
-├── AGENTS.md
+├── SCHEMA.md            # Single source of truth for operating rules
+├── AGENTS.md            # Thin pointer for OpenAI Codex → SCHEMA.md
 ├── raw/
 │   ├── Karpathy x.md
 │   └── llm-wiki-pattern.md
@@ -146,7 +150,8 @@ llm-wiki/
 
 Useful entry points:
 
-- [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) for the generated agent instructions
+- [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md) for the authoritative agent instructions
+- [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) to see what a thin runtime pointer looks like
 - [llm-wiki/wiki/index.md](./llm-wiki/wiki/index.md) for the catalog the agent navigates through
 - [llm-wiki/wiki/log.md](./llm-wiki/wiki/log.md) for the chronological operation history
 - [llm-wiki/wiki/overview.md](./llm-wiki/wiki/overview.md) for the current top-level synthesis
@@ -210,20 +215,21 @@ When you bootstrap a new wiki, the generated structure looks like this:
 │   ├── index.md
 │   ├── log.md
 │   └── overview.md
-├── {schema-file}
+├── SCHEMA.md            # Always generated — single source of truth
+├── {pointer-files}      # Optional, one per selected runtime
 └── .gitignore
 ```
 
-Schema filename by runtime:
+`SCHEMA.md` is always generated. For each runtime you select during setup, the skill adds a thin pointer file that redirects to `SCHEMA.md`:
 
-| Agent | Schema File |
-| --- | --- |
-| Claude Code | `CLAUDE.md` |
-| OpenAI Codex | `AGENTS.md` |
-| Copilot (VS Code) | `.github/copilot-instructions.md` |
-| Other / generic | `SCHEMA.md` |
+| Agent | Pointer File | Points to |
+| --- | --- | --- |
+| Claude Code | `CLAUDE.md` | `./SCHEMA.md` |
+| OpenAI Codex | `AGENTS.md` | `./SCHEMA.md` |
+| Copilot (VS Code) | `.github/copilot-instructions.md` | `../SCHEMA.md` |
+| Other / generic | _(no pointer)_ | agent reads `SCHEMA.md` directly |
 
-Only the filename changes. The operating model stays the same.
+All rules live in `SCHEMA.md`. Pointers never duplicate rule content — so you can safely add a second runtime at any time by dropping in another pointer file.
 
 ---
 
@@ -243,7 +249,8 @@ Only the filename changes. The operating model stays the same.
 | [skill/references/templates](./skill/references/templates) | Templates used during bootstrap |
 | [skill/references/workflows](./skill/references/workflows) | Detailed ingest, query, and lint workflow references |
 | [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) | Repository copy of the original idea note |
-| [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) | Generated agent instructions for the example wiki |
+| [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md) | Single source of truth for agent instructions |
+| [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) | Thin Codex pointer that redirects to SCHEMA.md |
 | [llm-wiki/raw](./llm-wiki/raw) | Example source corpus |
 | [llm-wiki/wiki](./llm-wiki/wiki) | Example compiled wiki output |
 
